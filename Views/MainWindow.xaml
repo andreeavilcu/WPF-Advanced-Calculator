@@ -1,0 +1,267 @@
+﻿<Window x:Class="CalculatorApp.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converters="clr-namespace:CalculatorApp.Converters"
+        xmlns:viewmodels="clr-namespace:CalculatorApp.ViewModels"
+        Title="Calculator" 
+        Height="700" 
+        Width="400"
+        ResizeMode="NoResize"
+        Background="#F3F3F3"
+        KeyDown="Window_KeyDown">
+
+    <Window.Resources>
+        <converters:NumberBaseConverter x:Key="NumberBaseConverter"/>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+
+        <!-- Stil modern pentru butoane -->
+        <Style x:Key="CalculatorButtonStyle" TargetType="Button">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Background" Value="#E0E0E0"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Width" Value="75"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                Padding="5"
+                                Height="{TemplateBinding Height}"
+                                Width="{TemplateBinding Width}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+       
+        <Style x:Key="OperationButtonStyle" TargetType="Button" BasedOn="{StaticResource CalculatorButtonStyle}">
+            <Setter Property="Background" Value="#FFA726"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+        
+        <Style x:Key="EqualsButtonStyle" TargetType="Button" BasedOn="{StaticResource CalculatorButtonStyle}">
+            <Setter Property="Background" Value="#4CAF50"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+        
+        <Style x:Key="MemoryButtonStyle" TargetType="Button" BasedOn="{StaticResource CalculatorButtonStyle}">
+            <Setter Property="Background" Value="black"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+        <Style x:Key="SpecialOperationButtonStyle" TargetType="Button" BasedOn="{StaticResource CalculatorButtonStyle}">
+            <Setter Property="Background" Value="blue"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+       
+        <Style x:Key="DisplayStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="32"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="Margin" Value="10"/>
+        </Style>
+
+        <Style x:Key="BaseRadioButtonStyle" TargetType="RadioButton">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Background" Value="#F3F3F3"/>
+            <Setter Property="BorderBrush" Value="#B0BEC5"/>
+            <Setter Property="Foreground" Value="#000000"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+
+        <Menu Grid.Row="0">
+            <MenuItem Header="File">
+                <MenuItem Header="Cut" Command="{Binding CutCommand}" InputGestureText="Ctrl+X"/>
+                <MenuItem Header="Copy" Command="{Binding CopyCommand}" InputGestureText="Ctrl+C"/>
+                <MenuItem Header="Paste" Command="{Binding PasteCommand}" InputGestureText="Ctrl+V"/>
+                <Separator/>
+                <MenuItem Header="Digit Grouping" IsCheckable="True" IsChecked="{Binding IsDigitGroupingEnabled, Mode=TwoWay}"/>
+                <Separator/>
+                <MenuItem Header="Programmer Mode" IsCheckable="True" IsChecked="{Binding IsProgrammerMode, Mode=TwoWay}"/>
+                <Separator/>
+              
+            </MenuItem>
+            <MenuItem Header="Help">
+                <MenuItem Header="About" Command="{Binding ShowAboutCommand}"/>
+            </MenuItem>
+        </Menu>
+
+        <Grid Grid.Row="1">
+            
+            <Border Background="White" CornerRadius="10" Margin="10" Padding="10">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                    <TextBlock Text="{Binding DisplayText}" Style="{StaticResource DisplayStyle}" TextWrapping="NoWrap"/>
+                </ScrollViewer>
+            </Border>
+
+
+           
+            <Grid Margin="10" VerticalAlignment="Bottom">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                
+                <Button Content="C" Grid.Row="0" Grid.Column="0" Style="{StaticResource OperationButtonStyle}" Command="{Binding ClearCommand}"/>
+                <Button Content="CE" Grid.Row="0" Grid.Column="1" Style="{StaticResource OperationButtonStyle}" Command="{Binding ClearEntryCommand}"/>
+                <Button Content="←" Grid.Row="0" Grid.Column="2" Style="{StaticResource OperationButtonStyle}" Command="{Binding BackspaceCommand}"/>
+                <Button Content="÷" Grid.Row="0" Grid.Column="3" Style="{StaticResource OperationButtonStyle}" Command="{Binding OperationCommand}" CommandParameter="/"/>
+                <Button Content="√" Grid.Row="0" Grid.Column="4" Style="{StaticResource SpecialOperationButtonStyle}" Command="{Binding SpecialOperationCommand}" CommandParameter="sqrt"/>
+                <Button Content="MC" Grid.Row="0" Grid.Column="5" Style="{StaticResource MemoryButtonStyle}" Command="{Binding MemoryClearCommand}" />
+
+                
+                <Button Content="7" Grid.Row="1" Grid.Column="0" Style="{StaticResource CalculatorButtonStyle}" Command="{Binding NumberCommand}" CommandParameter="7"/>
+                <Button Content="8" Grid.Row="1" Grid.Column="1" Style="{StaticResource CalculatorButtonStyle}" Command="{Binding NumberCommand}" CommandParameter="8"/>
+                <Button Content="9" Grid.Row="1" Grid.Column="2" Style="{StaticResource CalculatorButtonStyle}" Command="{Binding NumberCommand}" CommandParameter="9"/>
+                <Button Content="*" Grid.Row="1" Grid.Column="3" Style="{StaticResource OperationButtonStyle}" Command="{Binding OperationCommand}" CommandParameter="*"/>
+                <Button Content="x²" Grid.Row="1" Grid.Column="4" Style="{StaticResource SpecialOperationButtonStyle}" Command="{Binding SpecialOperationCommand}" CommandParameter="square"/>
+                <Button Content="MR" Grid.Row="1" Grid.Column="5" Style="{StaticResource MemoryButtonStyle}" Command="{Binding MemoryRecallCommand}"/>
+
+                
+                <Button Content="4" Grid.Row="2" Grid.Column="0" Style="{StaticResource CalculatorButtonStyle}" Command="{Binding NumberCommand}" CommandParameter="4"/>
+                <Button Content="5" Grid.Row="2" Grid.Column="1" Style="{StaticResource CalculatorButtonStyle}" Command="{Binding NumberCommand}" CommandParameter="5"/>
+                <Button Content="6" Grid.Row="2" Grid.Column="2" Style="{StaticResource CalculatorButtonStyle}" Command="{Binding NumberCommand}" CommandParameter="6"/>
+                <Button Content="-" Grid.Row="2" Grid.Column="3" Style="{StaticResource OperationButtonStyle}" Command="{Binding OperationCommand}" CommandParameter="-"/>
+                <Button Content="1/x" Grid.Row="2" Grid.Column="4" Style="{StaticResource SpecialOperationButtonStyle}" Command="{Binding SpecialOperationCommand}" CommandParameter="inverse"/>
+                <Button Content="M+" Grid.Row="2" Grid.Column="5" Style="{StaticResource MemoryButtonStyle}" Command="{Binding MemoryAddCommand}"/>
+
+               
+                <Button Content="1" Grid.Row="3" Grid.Column="0" Style="{StaticResource CalculatorButtonStyle}" Command="{Binding NumberCommand}" CommandParameter="1"/>
+                <Button Content="2" Grid.Row="3" Grid.Column="1" Style="{StaticResource CalculatorButtonStyle}" Command="{Binding NumberCommand}" CommandParameter="2"/>
+                <Button Content="3" Grid.Row="3" Grid.Column="2" Style="{StaticResource CalculatorButtonStyle}" Command="{Binding NumberCommand}" CommandParameter="3"/>
+                <Button Content="+" Grid.Row="3" Grid.Column="3" Style="{StaticResource OperationButtonStyle}" Command="{Binding OperationCommand}" CommandParameter="+"/>
+                <Button Content="%" Grid.Row="3" Grid.Column="4" Style="{StaticResource SpecialOperationButtonStyle}" Command="{Binding SpecialOperationCommand}" CommandParameter="percent"/>
+                <Button Content="M-" Grid.Row="3" Grid.Column="5" Style="{StaticResource MemoryButtonStyle}" Command="{Binding MemorySubstractCommand}"/>
+
+                
+                <Button Content="±" Grid.Row="4" Grid.Column="0" Style="{StaticResource CalculatorButtonStyle}" Command="{Binding OperationCommand}" CommandParameter="Negate"/>
+                <Button Content="0" Grid.Row="4" Grid.Column="1" Style="{StaticResource CalculatorButtonStyle}" Command="{Binding NumberCommand}" CommandParameter="0"/>
+                <Button Content="." Grid.Row="4" Grid.Column="2" Style="{StaticResource CalculatorButtonStyle}" Command="{Binding NumberCommand}" CommandParameter="."/>
+                <Button Content="=" Grid.Row="4" Grid.Column="3" Style="{StaticResource EqualsButtonStyle}" Command="{Binding CalculateCommand}"/>
+                <Button Content="MS" Grid.Row="4" Grid.Column="4" Style="{StaticResource MemoryButtonStyle}" Command="{Binding MemoryStoreCommand}"/>
+                <Button Content="M>" Grid.Row="4" Grid.Column="5" Style="{StaticResource MemoryButtonStyle}" Command="{Binding ShowMemoryStackCommand}"/>
+
+
+                <Grid Grid.Row="6" Grid.ColumnSpan="6" Visibility="{Binding IsProgrammerMode, Converter={StaticResource BoolToVisibilityConverter}}" Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Content="A" Grid.Column="0" Style="{StaticResource CalculatorButtonStyle}" Command="{Binding NumberCommand}" CommandParameter="A"
+                        IsEnabled="{Binding CurrentBase, Converter={StaticResource NumberBaseConverter}, ConverterParameter=16}"/>
+                    <Button Content="B" Grid.Column="1" Style="{StaticResource CalculatorButtonStyle}" Command="{Binding NumberCommand}" CommandParameter="B"
+                        IsEnabled="{Binding CurrentBase, Converter={StaticResource NumberBaseConverter}, ConverterParameter=16}"/>
+                    <Button Content="C" Grid.Column="2" Style="{StaticResource CalculatorButtonStyle}" Command="{Binding NumberCommand}" CommandParameter="C"
+                        IsEnabled="{Binding CurrentBase, Converter={StaticResource NumberBaseConverter}, ConverterParameter=16}"/>
+                    <Button Content="D" Grid.Column="3" Style="{StaticResource CalculatorButtonStyle}" Command="{Binding NumberCommand}" CommandParameter="D"
+                        IsEnabled="{Binding CurrentBase, Converter={StaticResource NumberBaseConverter}, ConverterParameter=16}"/>
+                    <Button Content="E" Grid.Column="4" Style="{StaticResource CalculatorButtonStyle}" Command="{Binding NumberCommand}" CommandParameter="E"
+                        IsEnabled="{Binding CurrentBase, Converter={StaticResource NumberBaseConverter}, ConverterParameter=16}"/>
+                    <Button Content="F" Grid.Column="5" Style="{StaticResource CalculatorButtonStyle}" Command="{Binding NumberCommand}" CommandParameter="F"
+                        IsEnabled="{Binding CurrentBase, Converter={StaticResource NumberBaseConverter}, ConverterParameter=16}"/>
+                </Grid>
+
+
+            </Grid>
+
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Visibility="{Binding IsProgrammerMode, Converter={StaticResource BoolToVisibilityConverter}}" Margin="10">
+                <RadioButton Content="Bin" IsChecked="{Binding CurrentBase, ConverterParameter=2, Converter={StaticResource NumberBaseConverter}}" Command="{Binding SetBaseCommand}" CommandParameter="2" Style="{StaticResource BaseRadioButtonStyle}"/>
+                <RadioButton Content="Oct" IsChecked="{Binding CurrentBase, ConverterParameter=8, Converter={StaticResource NumberBaseConverter}}" Command="{Binding SetBaseCommand}" CommandParameter="8" Style="{StaticResource BaseRadioButtonStyle}"/>
+                <RadioButton Content="Dec" IsChecked="{Binding CurrentBase, ConverterParameter=10, Converter={StaticResource NumberBaseConverter}}" Command="{Binding SetBaseCommand}" CommandParameter="10" Style="{StaticResource BaseRadioButtonStyle}"/>
+                <RadioButton Content="Hex" IsChecked="{Binding CurrentBase, ConverterParameter=16, Converter={StaticResource NumberBaseConverter}}" Command="{Binding SetBaseCommand}" CommandParameter="16" Style="{StaticResource BaseRadioButtonStyle}"/>
+            </StackPanel>
+
+            <Border Grid.ColumnSpan="6"
+                    BorderBrush="#CCCCCC"
+                    BorderThickness="1"
+                    CornerRadius="5"
+                    Padding="5"
+                    Margin="10,100,10,0"
+                    Background="#F9F9F9"
+                    VerticalAlignment="Top"
+                    Visibility="{Binding IsProgrammerMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="HEX" Grid.Row="0" Grid.Column="0" 
+                   FontWeight="Bold" VerticalAlignment="Center" Margin="5"/>
+                    <TextBlock Text="{Binding HexValue}" Grid.Row="0" Grid.Column="1" 
+                   Padding="5" TextAlignment="Right" FontFamily="Consolas"/>
+
+                    <TextBlock Text="DEC" Grid.Row="1" Grid.Column="0" 
+                   FontWeight="Bold" VerticalAlignment="Center" Margin="5"/>
+                    <TextBlock Text="{Binding DecValue}" Grid.Row="1" Grid.Column="1" 
+                   Padding="5" TextAlignment="Right" FontFamily="Consolas"/>
+
+                    <TextBlock Text="OCT" Grid.Row="2" Grid.Column="0" 
+                   FontWeight="Bold" VerticalAlignment="Center" Margin="5"/>
+                    <TextBlock Text="{Binding OctValue}" Grid.Row="2" Grid.Column="1" 
+                   Padding="5" TextAlignment="Right" FontFamily="Consolas"/>
+
+                    <TextBlock Text="BIN" Grid.Row="3" Grid.Column="0" 
+                   FontWeight="Bold" VerticalAlignment="Center" Margin="5"/>
+                    <TextBlock Text="{Binding BinValue}" Grid.Row="3" Grid.Column="1" 
+                   Padding="5" TextAlignment="Right" FontFamily="Consolas"/>
+                </Grid>
+            </Border>
+
+        </Grid>
+    </Grid>
+</Window>
